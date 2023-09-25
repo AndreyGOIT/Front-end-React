@@ -1,13 +1,14 @@
 import "./App.css";
-// import TodoForm from "./component/TodoForm";
-import FormPage from "./component/AddButton";
+import FormPage from "./components/FormPage";
+import { Layout } from "./components/Layout";
 
 function App() {
   return (
-    <div className="App">
-      <FormPage />
-      {/* <TodoForm /> */}
-    </div>
+    <Layout>
+      <div className="App">
+        <FormPage />
+      </div>
+    </Layout>
   );
 }
 

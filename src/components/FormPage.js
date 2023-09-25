@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+// import TodoForm from "./TodoForm";
 
 class TodoForm extends Component {
   constructor(props) {
@@ -20,8 +21,15 @@ class TodoForm extends Component {
     if (this.state.status === "") {
       alert("Please select a status."); // Проверка, что статус выбран
     } else {
-      // Отправьте данные формы на сервер или выполните другие действия
-      console.log("Новая задача:", this.state);
+      const newTodo = {
+        title: this.state.title,
+        deadline: this.state.deadline,
+        status: this.state.status,
+      };
+
+      // Вызываем функцию, переданную из родительского компонента
+      this.props.onAddTodo(newTodo);
+
       // Очистите форму после отправки данных
       this.setState({
         title: "",
@@ -82,6 +90,7 @@ class TodoForm extends Component {
               className="btn btn-secondary"
               type="submit"
               style={{ marginRight: "10px" }}
+              onClick={this.props.onCancel}
             >
               Cancel
             </button>
@@ -95,4 +104,62 @@ class TodoForm extends Component {
   }
 }
 
-export default TodoForm;
+class FormPage extends Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      showForm: false, // Изначально форма скрыта
+      todos: [], // array of tasks
+    };
+  }
+
+  // Функция для переключения видимости формы
+  toggleForm = () => {
+    this.setState((prevState) => ({
+      showForm: !prevState.showForm,
+    }));
+  };
+
+  // Функция для скрытия формы при нажатии "Cancel" в MyForm
+  handleCancel = () => {
+    this.setState({ showForm: false });
+  };
+
+  // Функция для добавления новой задачи в массив
+  handleAddTodo = (newTodo) => {
+    this.setState((prevState) => ({
+      todos: [...prevState.todos, newTodo], // Добавляем новую задачу в конец массива
+      showForm: false, // Скрываем форму после добавления
+    }));
+  };
+
+  render() {
+    return (
+      <div>
+        <h1>Form Page</h1>
+        <button className="btn btn-primary" onClick={this.toggleForm}>
+          Add a new todo
+        </button>
+        {/* Рендерим компонент формы, если showForm === true */}
+        {this.state.showForm && (
+          <TodoForm
+            onAddTodo={this.handleAddTodo}
+            onCancel={this.handleCancel}
+          />
+        )}{" "}
+        {/* Отображаем список задач */}
+        <ul>
+          {this.state.todos.map((todo, index) => (
+            <li key={index}>
+              Title: {todo.title}, Deadline: {todo.deadline}, Status:{" "}
+              {todo.status}
+            </li>
+          ))}
+        </ul>
+      </div>
+    );
+  }
+}
+
+export default FormPage;

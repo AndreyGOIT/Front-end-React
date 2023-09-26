@@ -1,5 +1,4 @@
 import React, { Component } from "react";
-// import TodoForm from "./TodoForm";
 
 class TodoForm extends Component {
   constructor(props) {
@@ -9,6 +8,17 @@ class TodoForm extends Component {
       deadline: "Deadline",
       status: "",
     };
+  }
+
+  componentDidUpdate(prevProps) {
+    // Если получен индекс для редактирования, устанваливаем начальное значение
+    if (this.props.editIndex !== prevProps.editIndex) {
+      const { editIndex, todos } = this.props;
+      if (editIndex !== null && todos[editIndex]) {
+        const { title, deadline, status } = todos[editIndex];
+        this.setState({ title, deadline, status });
+      }
+    }
   }
 
   handleInputChange = (event) => {
@@ -95,7 +105,8 @@ class TodoForm extends Component {
               Cancel
             </button>
             <button className="btn btn-primary" type="submit">
-              Add
+              {this.props.editIndex !== null ? "Update" : "Add"}{" "}
+              {/* Заменяем текст на кнопке */}
             </button>
           </div>
         </form>
@@ -124,8 +135,19 @@ class FormPage extends Component {
     this.state = {
       showForm: false, // Изначально форма скрыта
       todos: [], // array of tasks
+      editIndex: null, // index of element you need to edit
     };
   }
+
+  handleEdit = (index) => {
+    // устанавливаем индекс элемента для редактирования
+    this.setState({ editIndex: index });
+  };
+
+  handleClick = (index) => {
+    // Обработчик события клика по элементу списка
+    console.log(`Clicked on item ${index}`);
+  };
 
   // Функция для переключения видимости формы
   toggleForm = () => {
@@ -159,9 +181,11 @@ class FormPage extends Component {
           <TodoForm
             onAddTodo={this.handleAddTodo}
             onCancel={this.handleCancel}
+            editIndex={this.state.editIndex} // Передаем индекс для редактирования
+            todos={this.state.todos} // Передаем список задач
           />
         )}{" "}
-        {/* Отображаем список задач */}
+        {/* Отображаем список задач и передаем функцию для редактирования */}
         <div
           className="container p-3"
           style={{
@@ -175,9 +199,14 @@ class FormPage extends Component {
             }}
           >
             {this.state.todos.map((todo, index) => (
-              <li key={index}>
+              <li
+                key={index}
+                onClick={() => this.handleEdit(index)}
+                style={{ marginBottom: "10px", cursor: "pointer" }}
+              >
                 <div
                   className="container bg-light py-2"
+                  onClick={() => this.handleClick(index)}
                   style={{
                     display: "flex",
                     flexDirection: "column",

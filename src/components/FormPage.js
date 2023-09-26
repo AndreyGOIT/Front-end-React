@@ -184,7 +184,6 @@ class FormPage extends Component {
                     alignItems: "flex-start",
                     width: "400px",
                     borderLeft: getStatusColor(todo.status),
-                    // backgroundColor: "gray",
                     margin: "0px",
                   }}
                 >
@@ -199,6 +198,19 @@ class FormPage extends Component {
               </li>
             ))}
           </ul>
+          {this.state.todos.length > 0 && (
+            <div style={{ display: "flex", marginTop: "10px", width: "100%" }}>
+              <div style={{ padding: "15px", borderLeft: "10px solid green" }}>
+                Done
+              </div>
+              <div style={{ padding: "15px", borderLeft: "10px solid red" }}>
+                Not started
+              </div>
+              <div style={{ padding: "15px", borderLeft: "10px solid yellow" }}>
+                In progress
+              </div>
+            </div>
+          )}
         </div>
       </div>
     );

@@ -104,6 +104,19 @@ class TodoForm extends Component {
   }
 }
 
+function getStatusColor(status) {
+  switch (status) {
+    case "not started":
+      return "10px solid red"; // Красная полоска для "not started"
+    case "in progress":
+      return "10px solid yellow"; // Желтая полоска для "in progress"
+    case "done":
+      return "10px solid green"; // Зеленая полоска для "done"
+    default:
+      return "10px solid black"; // По умолчанию чёрная полоска
+  }
+}
+
 class FormPage extends Component {
   constructor(props) {
     super(props);
@@ -149,14 +162,44 @@ class FormPage extends Component {
           />
         )}{" "}
         {/* Отображаем список задач */}
-        <ul>
-          {this.state.todos.map((todo, index) => (
-            <li key={index}>
-              Title: {todo.title}, Deadline: {todo.deadline}, Status:{" "}
-              {todo.status}
-            </li>
-          ))}
-        </ul>
+        <div
+          className="container p-3"
+          style={{
+            width: "400px",
+          }}
+        >
+          <ul
+            style={{
+              listStyleType: "none",
+              paddingLeft: "0",
+            }}
+          >
+            {this.state.todos.map((todo, index) => (
+              <li key={index}>
+                <div
+                  className="container bg-light py-2"
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "flex-start",
+                    width: "400px",
+                    borderLeft: getStatusColor(todo.status),
+                    // backgroundColor: "gray",
+                    margin: "0px",
+                  }}
+                >
+                  <p style={{ marginBottom: "0px" }}>
+                    <b>{todo.title}</b>
+                  </p>
+                  <p style={{ marginBottom: "0px" }}>
+                    {" "}
+                    <i>Deadline: {todo.deadline}</i>
+                  </p>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </div>
       </div>
     );
   }

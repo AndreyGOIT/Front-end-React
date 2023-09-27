@@ -1,4 +1,6 @@
 import React, { Component } from "react";
+import "bootstrap/dist/css/bootstrap.min.css"; // Импорт стилей
+import "bootstrap/dist/js/bootstrap.bundle.min"; // Импорт JavaScript
 
 class TodoForm extends Component {
   constructor(props) {
@@ -128,6 +130,124 @@ function getStatusColor(status) {
   }
 }
 
+// modal window
+class EditModal extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      editedTitle: props.todo.title,
+      editedDeadline: props.todo.deadline,
+      editedStatus: props.todo.status,
+    };
+  }
+
+  handleInputChange = (event) => {
+    const { name, value } = event.target;
+    this.setState({ [name]: value });
+  };
+
+  handleSave = () => {
+    const { editedTitle, editedDeadline, editedStatus } = this.state;
+    const { todoIndex, onSave } = this.props;
+
+    onSave(todoIndex, editedTitle, editedDeadline, editedStatus);
+  };
+
+  render() {
+    return (
+      // Модальное окно с формой для редактирования
+      // <!-- The Modal -->
+      <div className="modal" id="myModal">
+        <div className="modal-dialog">
+          <div className="modal-content">
+            {/* <!-- Modal Header --> */}
+            <div className="modal-header">
+              <h4 className="modal-title">Edit todo item</h4>
+              <button
+                type="button"
+                className="btn-close"
+                data-bs-dismiss="modal"
+              ></button>
+            </div>
+
+            {/* <!-- Modal body --> */}
+            <div className="modal-body">
+              <form className="container" onSubmit={this.handleSave}>
+                <div className="mt-3">
+                  <input
+                    type="text"
+                    id="title"
+                    name="editedTitle"
+                    value={this.state.editedTitle}
+                    onChange={this.handleInputChange}
+                    style={{ width: "100%" }}
+                    required
+                  />
+                </div>
+
+                <div className="mt-3">
+                  <input
+                    type="text"
+                    id="deadline"
+                    name="editedDeadline"
+                    value={this.state.editedDeadline}
+                    onChange={this.handleInputChange}
+                    style={{ width: "100%" }}
+                    required
+                  />
+                </div>
+
+                <div className="mt-3 mb-3 ">
+                  <select
+                    id="status"
+                    name="editedStatus"
+                    value={this.state.editedStatus}
+                    onChange={this.handleInputChange}
+                    style={{ width: "100%", height: "30px" }}
+                  >
+                    {/* <option value="">Select Status</option> */}
+                    <option value="not started">Not started</option>
+                    <option value="in progress">In progress</option>
+                    <option value="done">Done</option>
+                  </select>
+                </div>
+                <div className="d-flex justify-content-end ">
+                  <button
+                    className="btn btn-secondary"
+                    type="button"
+                    style={{ marginRight: "10px" }}
+                    // onClick={this.props.onCancel}
+                    data-bs-dismiss="modal"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    className="btn btn-primary"
+                    type="submit"
+                    data-bs-dismiss="modal"
+                  >
+                    Update
+                  </button>
+                </div>
+              </form>
+            </div>
+
+            {/* <!-- Modal footer --> */}
+            <div className="modal-footer">
+              <button
+                type="button"
+                className="btn btn-danger"
+                data-bs-dismiss="modal"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+}
 class FormPage extends Component {
   constructor(props) {
     super(props);
@@ -136,12 +256,40 @@ class FormPage extends Component {
       showForm: false, // Изначально форма скрыта
       todos: [], // array of tasks
       editIndex: null, // index of element you need to edit
+      isEditModalOpen: false,
+      editingTodoIndex: null,
     };
   }
 
   handleEdit = (index) => {
-    // устанавливаем индекс элемента для редактирования
-    this.setState({ editIndex: index });
+    // Ваш обработчик клика на кнопке "Edit"
+    // document
+    //   .getElementById("editButton")
+    //   .addEventListener("click", function () {
+    //     var myModal = new bootstrap.Modal(document.getElementById("myModal"));
+    //     myModal.show();
+    //   });
+    // Открываем модальное окно для редактирования
+    this.setState({
+      isEditModalOpen: true,
+      editingTodoIndex: index,
+    });
+  };
+
+  handleSaveEdit = (index, editedTitle, editedDeadline, editedStatus) => {
+    // Обновляем элемент массива todos с новыми данными
+    const updatedTodos = [...this.state.todos];
+    updatedTodos[index] = {
+      title: editedTitle,
+      deadline: editedDeadline,
+      status: editedStatus,
+    };
+
+    this.setState({
+      isEditModalOpen: false,
+      editingTodoIndex: null,
+      todos: updatedTodos,
+    });
   };
 
   handleClick = (index) => {
@@ -209,20 +357,45 @@ class FormPage extends Component {
                   onClick={() => this.handleClick(index)}
                   style={{
                     display: "flex",
-                    flexDirection: "column",
-                    alignItems: "flex-start",
+                    justifyContent: "space-between",
+                    // flexDirection: "column",
+                    alignItems: "center",
                     width: "400px",
                     borderLeft: getStatusColor(todo.status),
                     margin: "0px",
                   }}
                 >
-                  <p style={{ marginBottom: "0px" }}>
-                    <b>{todo.title}</b>
-                  </p>
-                  <p style={{ marginBottom: "0px" }}>
-                    {" "}
-                    <i>Deadline: {todo.deadline}</i>
-                  </p>
+                  <div
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "flex-start",
+                    }}
+                  >
+                    <p style={{ marginBottom: "0px" }}>
+                      <b>{todo.title}</b>
+                    </p>
+                    <p style={{ marginBottom: "0px" }}>
+                      {" "}
+                      <i>Deadline: {todo.deadline}</i>
+                    </p>
+                  </div>
+
+                  <button
+                    type="button"
+                    className="btn btn-primary"
+                    data-bs-toggle="modal"
+                    data-bs-target="#myModal"
+                    onClick={() => this.handleEdit(index)} // Обработчик клика
+                    style={{
+                      height: "30px",
+                      display: "flex", // Устанавливаем flex-контейнер
+                      justifyContent: "center", // Горизонтальное выравнивание по центру
+                      alignItems: "center", // Вертикальное выравнивание по центру
+                    }}
+                  >
+                    Edit
+                  </button>
                 </div>
               </li>
             ))}
@@ -239,6 +412,16 @@ class FormPage extends Component {
                 In progress
               </div>
             </div>
+          )}
+        </div>
+        <div>
+          {/* Модальное окно для редактирования */}
+          {this.state.isEditModalOpen && (
+            <EditModal
+              todo={this.state.todos[this.state.editingTodoIndex]}
+              todoIndex={this.state.editingTodoIndex}
+              onSave={this.handleSaveEdit}
+            />
           )}
         </div>
       </div>
